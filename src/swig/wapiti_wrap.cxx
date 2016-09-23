@@ -429,12 +429,8 @@ SWIGINTERN void SWIG_JavaException(JNIEnv *jenv, int code, const char *msg) {
         fread(outBuf, 1, bufSize, fout);
 #endif
 
-    	//info("* Done\n");
-    	// And close files
-    	if (mdl->opt->input != NULL)
-    		fclose(fin);
-    	if (mdl->opt->output != NULL)
-    		fclose(fout);
+        fclose(fin);
+        fclose(fout);
 
         return outBuf;
     }
