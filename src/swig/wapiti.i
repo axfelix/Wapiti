@@ -182,12 +182,8 @@ void printModelPath(mdl_t* mdl);
         fread(outBuf, 1, bufSize, fout);
 #endif
 
-    	//info("* Done\n");
-    	// And close files
-    	if (mdl->opt->input != NULL)
-    		fclose(fin);
-    	if (mdl->opt->output != NULL)
-    		fclose(fout);
+        fclose(fin);
+        fclose(fout);
 
         return outBuf;
     }
