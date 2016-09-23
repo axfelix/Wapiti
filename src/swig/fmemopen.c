@@ -26,7 +26,7 @@ int init_file(const char *filename, void* buf, size_t size)
     return 0;
 }
 
-FILE* open_file_temp(const char *filename, const char *mode)
+FILE* open_file_temp(const char *filename)
 {
     HANDLE hFile;
     int fd;
@@ -34,20 +34,30 @@ FILE* open_file_temp(const char *filename, const char *mode)
     hFile = CreateFile(
         filename,
         GENERIC_READ | GENERIC_WRITE,
-        0,
+        0, /* sometimes these share perms are useful:: FILE_SHARE_READ | FILE_SHARE_WRITE, */
         NULL,
         OPEN_EXISTING,
         FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE | FILE_FLAG_SEQUENTIAL_SCAN,
         NULL);
 
-    if (hFile == INVALID_HANDLE_VALUE)
+    if (hFile == INVALID_HANDLE_VALUE) {
         return NULL;
+    }
 
     fd = _open_osfhandle((intptr_t)hFile, _O_TEXT);
-    return _fdopen(fd, mode);
-    
+    return  _fdopen(fd, "w+");
 }
 
+/**
+ * mode is ignored.  fmemopen is emulated on Windows by using a file.
+ * A temporary is created, zero'ed out.  The file is re-opened with
+ * flags to delete it on close, which ensure temporary files are
+ * disposed of immediately.  
+ *
+ * The mode is ignored, and is always forced to w+.  This means the
+ * file supports read or write, and if the file exists the contents
+ * are wiped out.
+ */
 FILE *fmemopen(void *buf, size_t size, const char *mode)
 {
     char temppath[MAX_PATH - 14];
@@ -58,11 +68,11 @@ FILE *fmemopen(void *buf, size_t size, const char *mode)
     if (0 == GetTempFileName(temppath, "WAP", 0, filename))
         return NULL;
 
-    if (0 == init_file(filename, buf, size))
+    if (0 != init_file(filename, buf, size))
         return NULL;
-    
-    return open_file_temp(filename, mode);}
 
+    return open_file_temp(filename);
+}
 
 #elif !defined(linux)
 

@@ -46,8 +46,6 @@ void printModelPath(mdl_t* mdl);
     #define BUF_SIZE 8192
     #define PACKAGE "wapiti"
       
-
-
     mdl_t* get_params_obj_var(int argc, char** argv);
     void printModelPath(mdl_t* mdl);
 
@@ -178,6 +176,12 @@ void printModelPath(mdl_t* mdl);
     	// Do the labelling
     	//info("* Label sequences\n");
     	tag_label(mdl, fin, fout);
+
+#if defined(WIN32) || defined(_WIN32)
+        rewind(fout);
+        fread(outBuf, 1, bufSize, fout);
+#endif
+
     	//info("* Done\n");
     	// And close files
     	if (mdl->opt->input != NULL)
