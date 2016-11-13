@@ -5,6 +5,11 @@ cache:
 init:
   - git config --global core.autocrlf input
 
+skip_commits:
+  files:
+    - '**/*.md'
+    - '**/*.mkd'
+
 environment:
   NINJA_U: https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip
   NINJA_A: ninja-win.zip

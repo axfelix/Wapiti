@@ -1,4 +1,16 @@
-# This is a modified version of Wapiti 1.5, patched by Vyacheslav Zholudev
+[![Build status](https://ci.appveyor.com/api/projects/status/ry6ki3d31qneg5po/branch/grobid-java-swig-win32?svg=true)](https://ci.appveyor.com/project/boumenot/wapiti/branch/grobid-java-swig-win32)
+
+## This is a modified verison of Wapiti, patched by Christopher Boumenot
+
+This version (branch) is built for use with [Grobid][grobid] on
+Windows.  All development to support [Grobid][grobid] is done on this
+branch.
+
+Wapiti binaries are available from [AppVeyor][bits].  Binaries are
+64-bit and built against JDK 1.7.  See the [appveyor.yml][yml] for details
+on re-creating the build on your machine.
+
+## This is a modified version of Wapiti 1.5, patched by Vyacheslav Zholudev
 
 The present modified version brings to the latest Wapiti release the following features:
 
@@ -59,3 +71,7 @@ If you use Wapiti for research purpose, please use the following citation:
         url       = {http://www.aclweb.org/anthology/P10-1052}
     }
 
+
+[grobid]: https://github.com/kermitt2/grobid
+[bits]: https://ci.appveyor.com/project/boumenot/wapiti/branch/grobid-java-swig-win32/artifacts
+[yml]: https://github.com/boumenot/Wapiti/blob/grobid-java-swig-win32/appveyor.yml
