@@ -1,0 +1,43 @@
+cache:
+  - ninja-win.zip
+  - x86_64-6.2.0-release-posix-seh-rt_v5-rev1.7z
+
+init:
+  - git config --global core.autocrlf input
+
+environment:
+  NINJA_U: https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip
+  NINJA_A: ninja-win.zip
+  matrix:
+    - MINGW_D: mingw64
+      MINGW_U: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/6.2.0/threads-posix/seh/x86_64-6.2.0-release-posix-seh-rt_v5-rev1.7z
+      MINGW_A: x86_64-6.2.0-release-posix-seh-rt_v5-rev1.7z
+      JAVA_HOME: C:\Program Files\Java\jdk1.7.0
+
+install:
+  - if not exist "%NINJA_U%" appveyor DownloadFile "%NINJA_U%" -FileName "%NINJA_A%"
+  - if not exist "%MINGW_A%" appveyor DownloadFile "%MINGW_U%"
+  - 7z x -y "%NINJA_A%" -oc:\projects\deps\ninja > nul
+  - 7z x -y "%MINGW_A%" > nul
+  - set PATH=c:\projects\deps\ninja;%PATH%
+  - set PATH=%CD%\%MINGW_D%\bin;%PATH%
+  - set PATH=%JAVA_HOME%\bin;%PATH%
+
+before_build:
+  - ninja --version
+  - cmake --version
+  - gcc --version
+  - if "%APPVEYOR_REPO_TAG%"=="true" (set CMAKE_BUILD_TYPE=Release) else (set CMAKE_BUILD_TYPE=Debug)
+  - set
+
+build_script:
+  - cmake -G Ninja .
+  - ninja
+
+after_build:
+  - 7z a wapiti-grobid-swig-java-gcc-x64.zip COPYING README.mkd libwapiti.dll wapiti-cmd.exe
+  - appveyor PushArtifact wapiti-grobid-swig-java-gcc-x64.zip
+
+artifacts:
+  - path: wapiti-grobid-swig-java-gcc-x64.zip
+
