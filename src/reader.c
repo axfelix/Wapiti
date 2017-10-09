@@ -40,7 +40,8 @@
 #include "tools.h"
 #include "ioline.h"
 
-/*******************************************************************************
+
+ /*******************************************************************************
  * Datafile reader
  *
  *   And now come the data file reader which use the previous module to parse
@@ -124,14 +125,26 @@ void rdr_freedat(dat_t *dat) {
  *   we compile patterns, syntax errors in them will be raised at this time.
  */
 void rdr_loadpat(rdr_t *rdr, iol_t *iol) {
-        while (true) {
+	while (true) {
+		// NOTE(boumenot): this construct is only done to support Interop.  The caller
+		// owns the string's data, so I have to duplicate (xstrdup) it because Wapiti
+		// makes in-place edits.
+		//
+		// One would never do this because it leaks, and creates unnecessary allocations.
+		//
+		// TODO(boumenot): provide support for both standalone and interop support.
 		// Read raw input line
-                char *line = iol->gets_cb(iol->in);
+		char *p = iol->gets_cb(iol->in);
+		if (p == NULL)
+			break;
+
+		char *line = xstrdup(p);
+		// end NOTE(boumenot)
 		if (line == NULL)
 			break;
 		// Remove comments and trailing spaces
 		int end = strcspn(line, "#");
-		while (end != 0 && isspace(line[end - 1] & 0x7f))
+		while (end != 0 && isspace(line[end - 1] & 0xff))
 			end--;
 		if (end == 0) {
 			free(line);
@@ -143,19 +156,18 @@ void rdr_loadpat(rdr_t *rdr, iol_t *iol) {
 		pat_t *pat = pat_comp(line);
 		rdr->npats++;
 		switch (line[0]) {
-			case 'u': rdr->nuni++; break;
-			case 'b': rdr->nbi++; break;
-			case '*': rdr->nuni++;
-			          rdr->nbi++; break;
-			default:
-				fatal("unknown pattern type '%c'", line[0]);
+		case 'u': rdr->nuni++; break;
+		case 'b': rdr->nbi++; break;
+		case '*': rdr->nuni++;
+			rdr->nbi++; break;
+		default:
+			fatal("unknown pattern type '%c'", line[0]);
 		}
 		rdr->pats = xrealloc(rdr->pats, sizeof(char *) * rdr->npats);
 		rdr->pats[rdr->npats - 1] = pat;
 		rdr->ntoks = max(rdr->ntoks, pat->ntoks);
 	}
 }
-
 
 /* rdr_readraw:
  *   Read a raw sequence from given file: a set of lines terminated by end of
@@ -170,14 +182,22 @@ raw_t *rdr_readraw(iol_t *iol, bool autouni) {
 	// before reading the sequence stoping at end of file or on a new blank
 	// line.
 	while (true) {
-                char *p = iol->gets_cb(iol->in);
+		// NOTE(boumenot): this construct is only done to support Interop.  The caller
+		// owns the string's data, so I have to duplicate (xstrdup) it because Wapiti
+		// makes in-place edits.
+		//
+		// One would never do this because it leaks, and creates unnecessary allocations.
+		//
+		// TODO(boumenot): provide support for both standalone and interop support.
+		char *p = iol->gets_cb(iol->in);
 		if (p == NULL)
 			break;
 
-                char *line = xstrdup(p);
+		char *line = xstrdup(p);
+		// end NOTE(boumenot)
 		// Check for empty line marking the end of the current sequence
 		int len = strlen(line);
-		while (len != 0 && isspace(line[len - 1] & 0x7f))
+		while (len != 0 && isspace(line[len - 1] & 0xff))
 			len--;
 		if (len == 0) {
 			free(line);
@@ -368,7 +388,7 @@ seq_t *rdr_raw2seq(rdr_t *rdr, const raw_t *raw, bool lbl) {
 	for (uint32_t t = 0; t < T; t++) {
 		// Get a copy of the raw line skiping leading space characters
 		const char *src = raw->lines[t];
-		while (isspace(*src & 0x7f))
+		while (isspace(*src & 0xff))
 			src++;
 		char *line = xstrdup(src);
 		// Split it in tokens
@@ -376,12 +396,12 @@ seq_t *rdr_raw2seq(rdr_t *rdr, const raw_t *raw, bool lbl) {
 		uint32_t cnt = 0;
 		while (*line != '\0') {
 			toks[cnt++] = line;
-			while (*line != '\0' && !isspace(*line & 0x7f))
+			while (*line != '\0' && !isspace(*line & 0xff))
 				line++;
 			if (*line == '\0')
 				break;
 			*line++ = '\0';
-			while (*line != '\0' && isspace(*line & 0x7f))
+			while (*line != '\0' && isspace(*line & 0xff))
 				line++;
 		}
 		// If user specified that data are labelled, move the last token
@@ -424,7 +444,7 @@ seq_t *rdr_raw2seq(rdr_t *rdr, const raw_t *raw, bool lbl) {
  *   Return NULL if end of file occure before anything as been read.
  */
 seq_t *rdr_readseq(rdr_t *rdr, iol_t *iol, bool lbl) {
-        raw_t *raw = rdr_readraw(iol, rdr->autouni);
+    raw_t *raw = rdr_readraw(iol, rdr->autouni);
 	if (raw == NULL)
 		return NULL;
 	seq_t *seq = rdr_raw2seq(rdr, raw, lbl);
@@ -448,7 +468,7 @@ dat_t *rdr_readdat(rdr_t *rdr, iol_t *iol, bool lbl) {
 	// Load sequences
 	while (true) {
 		// Read the next sequence
-                seq_t *seq = rdr_readseq(rdr, iol, lbl);
+        seq_t *seq = rdr_readseq(rdr, iol, lbl);
 		if (seq == NULL)
 			break;
 		// Grow the buffer if needed
@@ -484,7 +504,7 @@ dat_t *rdr_readdat(rdr_t *rdr, iol_t *iol, bool lbl) {
 void rdr_load(rdr_t *rdr) {
 	const char *err = "broken file, invalid reader format";
 	int autouni = rdr->autouni;
-        char *line = rdr->iol->gets_cb(rdr->iol->in);
+	char *line = rdr->iol->gets_cb(rdr->iol->in);
 	if (sscanf(line, "#rdr#%"PRIu32"/%"PRIu32"/%d\n",
 			&rdr->npats, &rdr->ntoks, &autouni) != 3) {
 		// This for compatibility with previous file format
