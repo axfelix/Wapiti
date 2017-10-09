@@ -143,7 +143,7 @@ static int iol_sprint(void *out, char *msg, ...) {
 		n = vsnprintf(p, size, msg, args);
 		va_end(args);
 
-        if (n > -1 && n < size)
+        if (n > -1 && (size_t)n < size)
             break;
 
         size *= 2;
