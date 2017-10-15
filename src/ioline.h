@@ -44,9 +44,15 @@ struct iol_s {
     void *out;         // state passed to the puts callback
 };    
 
+typedef struct iol_interop_s iol_interop_t;
+struct iol_interop_s {
+	gets_cb_t gets_cb;  // callback to get a line from in
+	void *in;          // state passed to the gets callback
+};
+
 iol_t *iol_new(FILE *in, FILE *out);
 iol_t *iol_new2(gets_cb_t gets_cb, void *in, print_cb_t print_cb, void *out);
-iol_t *iol_new3(gets_cb_t gets_cb, write_cb_t write_cb);
+iol_t *iol_new_interop(gets_cb_t gets_cb, write_cb_t write_cb);
 void iol_free(iol_t *iol);
 
 #endif
