@@ -7,6 +7,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Ot")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Qvec")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /GL") # whole-program optimizations
 
 ## disable multithreaded
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /DMTH_ANSI")
