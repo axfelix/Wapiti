@@ -126,20 +126,7 @@ void rdr_freedat(dat_t *dat) {
  */
 void rdr_loadpat(rdr_t *rdr, iol_t *iol) {
 	while (true) {
-		// NOTE(boumenot): this construct is only done to support Interop.  The caller
-		// owns the string's data, so I have to duplicate (xstrdup) it because Wapiti
-		// makes in-place edits.
-		//
-		// One would never do this because it leaks, and creates unnecessary allocations.
-		//
-		// TODO(boumenot): provide support for both standalone and interop support.
-		// Read raw input line
-		char *p = iol->gets_cb(iol->in);
-		if (p == NULL)
-			break;
-
-		char *line = xstrdup(p);
-		// end NOTE(boumenot)
+		char *line = iol->gets_cb(iol->in);
 		if (line == NULL)
 			break;
 		// Remove comments and trailing spaces
@@ -182,20 +169,9 @@ raw_t *rdr_readraw(iol_t *iol, bool autouni) {
 	// before reading the sequence stoping at end of file or on a new blank
 	// line.
 	while (true) {
-		// NOTE(boumenot): this construct is only done to support Interop.  The caller
-		// owns the string's data, so I have to duplicate (xstrdup) it because Wapiti
-		// makes in-place edits.
-		//
-		// One would never do this because it leaks, and creates unnecessary allocations.
-		//
-		// TODO(boumenot): provide support for both standalone and interop support.
-		char *p = iol->gets_cb(iol->in);
-		if (p == NULL)
+		char *line = iol->gets_cb(iol->in);
+		if (line == NULL)
 			break;
-
-		char *line = xstrdup(p);
-		// end NOTE(boumenot)
-		// Check for empty line marking the end of the current sequence
 		int len = strlen(line);
 		while (len != 0 && isspace(line[len - 1] & 0xff))
 			len--;

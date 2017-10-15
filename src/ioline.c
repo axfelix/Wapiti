@@ -32,6 +32,7 @@
 static char *iol_gets(void *in);
 static int   iol_print(void *out, char *msg, ...);
 static int   iol_sprint(void *out, char *msg, ...);
+static char *iol_gets_cb_interop(void *in);
 
 iol_t *iol_new(FILE *in, FILE *out) {
     iol_t *iol = xmalloc(sizeof(iol_t));
@@ -53,10 +54,15 @@ iol_t *iol_new2(gets_cb_t gets_cb, void *in, print_cb_t print_cb, void *out) {
     return iol;
 }
 
-iol_t *iol_new3(gets_cb_t gets_cb, write_cb_t write_cb) {
+iol_t *iol_new_interop(gets_cb_t gets_cb, write_cb_t write_cb) {
     iol_t *iol = xmalloc(sizeof(iol_t));
-    iol->gets_cb  = gets_cb;
-    iol->in       = (void *)iol;
+
+	iol_interop_t *iol_interop = xmalloc(sizeof(iol_interop_t));
+	iol_interop->gets_cb = gets_cb;
+	iol_interop->in = (void *)iol;
+
+	iol->gets_cb = iol_gets_cb_interop;
+	iol->in = (void *)iol_interop;
     iol->print_cb = iol_sprint;
     iol->write_cb = write_cb;
     iol->out      = (void *)iol;
@@ -67,6 +73,34 @@ void iol_free(iol_t *iol) {
     free(iol);
 }
 
+void iol_free_interop(iol_t *iol) {
+	iol_interop_t *iol_interop = (iol_interop_t*)iol->in;
+	xfree(iol_interop);
+	xfree(iol);
+}
+
+/* gets_cb_interop:
+ *  Gets a line of input for interop code.  The caller most likely owns the
+ *  memory, so duplicate the string before processing.
+ */
+static char *iol_gets_cb_interop(void *s) {
+	iol_interop_t *iol_interop = (iol_interop_t*)s;
+	char *p = iol_interop->gets_cb(iol_interop->in);
+	if (p == NULL) {
+		return NULL;
+	}
+
+	char *line = xstrdup(p);
+	return line;
+}
+
+static char *print_cb_interop(void *s) {
+	return NULL;
+}
+
+static char *write_cb_interop(void *s) {
+	return NULL;
+}
 
 /* iol_gets:
  *   Read an input line from <in>. The line can be of any size limited only by
