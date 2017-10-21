@@ -70,7 +70,7 @@ iol_t *iol_new_interop(gets_cb_t gets_cb, write_cb_t write_cb) {
 }
 
 void iol_free(iol_t *iol) {
-    free(iol);
+    xfree(iol);
 }
 
 void iol_free_interop(iol_t *iol) {
@@ -122,7 +122,7 @@ static char *iol_gets(void *in) {
 			// On end of file, we must check if we have already read
 			// some data or not
 			if (len == 0) {
-				free(buffer);
+				xfree(buffer);
 				return NULL;
 			}
 			break;

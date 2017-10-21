@@ -389,9 +389,9 @@ char *pat_exec(const pat_t *pat, const tok_t *tok, uint32_t at) {
  */
 void pat_free(pat_t *pat) {
 	for (uint32_t it = 0; it < pat->nitems; it++)
-		free(pat->items[it].value);
-	free(pat->src);
-	free(pat);
+		xfree(pat->items[it].value);
+	xfree(pat->src);
+	xfree(pat);
 }
 
 

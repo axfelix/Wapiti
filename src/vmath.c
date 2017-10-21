@@ -75,7 +75,7 @@ void xvm_free(double x[]) {
 #if defined(__SSE2__) && !defined(XVM_ANSI)
 	_mm_free(x);
 #else
-	free(x);
+	xfree(x);
 #endif
 }
 

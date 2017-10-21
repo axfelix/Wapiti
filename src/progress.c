@@ -110,7 +110,7 @@ void uit_setup(mdl_t *mdl) {
 void uit_cleanup(mdl_t *mdl) {
 	unused(mdl);
 	if (mdl->opt->stopwin != 0) {
-		free(mdl->werr);
+		xfree(mdl->werr);
 		mdl->werr = NULL;
 	}
 	signal(SIGINT, SIG_DFL);

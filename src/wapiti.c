@@ -320,7 +320,7 @@ static void doupdt(mdl_t *mdl, iol_t *iol) {
 			*line++ = '\0';
 		}
 		if (ntoks == 0) {
-			free(line);
+			xfree(line);
 			continue;
 		} else if (ntoks != 4) {
 			fatal("invalid line at %d", nline);
@@ -351,7 +351,7 @@ static void doupdt(mdl_t *mdl, iol_t *iol) {
 			double *w = mdl->theta + mdl->boff[obs];
 			w[yp * Y + y] = wgh;
 		}
-		free(line);
+		xfree(line);
 	}
 	// If requested compact the model.
 	if (mdl->opt->compact) {

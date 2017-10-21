@@ -300,9 +300,9 @@ void tag_viterbi(mdl_t *mdl, const seq_t *seq,
 			psc[t - 1] = (*psi)[t - 1][yp][y];
 		bst = yp;
 	}
-	free(old);
-	free(cur);
-	free(vback);
+	xfree(old);
+	xfree(cur);
+	xfree(vback);
 	xvm_free(vpsi);
 }
 
@@ -401,9 +401,9 @@ void tag_nbviterbi(mdl_t *mdl, const seq_t *seq, uint32_t N,
 			bst = (*back)[t - 1][bst];
 		}
 	}
-	free(old);
-	free(cur);
-	free(vback);
+	xfree(old);
+	xfree(cur);
+	xfree(vback);
 	xvm_free(vpsi);
 }
 
@@ -486,9 +486,9 @@ void tag_label(mdl_t *mdl, iol_t *iol) {
 			serr += err;
 		}
 		// Cleanup memory used for this sequence
-		free(scs);
-		free(psc);
-		free(out);
+		xfree(scs);
+		xfree(psc);
+		xfree(out);
 		rdr_freeseq(seq);
 		rdr_freeraw(raw);
 		// And report our progress, at regular interval we display how
@@ -573,7 +573,7 @@ static void tag_evalsub(job_t *job, uint32_t id, uint32_t cnt, eval_t *eval) {
 			eval->tcnt += T;
 			eval->scnt += 1;
 			eval->serr += err;
-			free(out);
+			xfree(out);
 		}
 	}
 }
@@ -605,7 +605,7 @@ void tag_eval(mdl_t *mdl, double *te, double *se) {
 		terr += eval[w]->terr;
 		scnt += eval[w]->scnt;
 		serr += eval[w]->serr;
-		free(eval[w]);
+		xfree(eval[w]);
 	}
 	*te = (double)terr / tcnt * 100.0;
 	*se = (double)serr / scnt * 100.0;

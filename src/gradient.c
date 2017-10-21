@@ -788,9 +788,9 @@ void grd_stcheck(grd_st_t *grd_st, uint32_t len) {
 	if (len == 0 || (len > grd_st->len && grd_st->len != 0)) {
 		if (grd_st->mdl->opt->sparse) {
 			xvm_free(grd_st->psiuni); grd_st->psiuni = NULL;
-			free(grd_st->psiyp);      grd_st->psiyp  = NULL;
-			free(grd_st->psiidx);     grd_st->psiidx = NULL;
-			free(grd_st->psioff);     grd_st->psioff = NULL;
+			xfree(grd_st->psiyp);     grd_st->psiyp  = NULL;
+			xfree(grd_st->psiidx);    grd_st->psiidx = NULL;
+			xfree(grd_st->psioff);    grd_st->psioff = NULL;
 		}
 		xvm_free(grd_st->psi);   grd_st->psi   = NULL;
 		xvm_free(grd_st->alpha); grd_st->alpha = NULL;
@@ -848,7 +848,7 @@ grd_st_t *grd_stnew(mdl_t *mdl, double *g) {
  */
 void grd_stfree(grd_st_t *grd_st) {
 	grd_stcheck(grd_st, 0);
-	free(grd_st);
+	xfree(grd_st);
 }
 
 /* grd_dospl:
@@ -899,8 +899,8 @@ void grd_free(grd_t *grd) {
 #endif
 	for (uint32_t w = 0; w < W; w++)
 		grd_stfree(grd->grd_st[w]);
-	free(grd->grd_st);
-	free(grd);
+	xfree(grd->grd_st);
+	xfree(grd);
 }
 
 /* grd_worker:
