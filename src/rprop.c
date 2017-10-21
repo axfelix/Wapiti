@@ -227,6 +227,6 @@ void trn_rprop(mdl_t *mdl) {
 	xvm_free(gp);
 	xvm_free(stp);
 	grd_free(grd);
-	free(st);
+	xfree(st);
 }
 

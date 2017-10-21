@@ -384,11 +384,11 @@ void trn_bcd(mdl_t *mdl) {
 	grd_stfree(bcd->grd_st);
 	xvm_free(bcd->ugrd); xvm_free(bcd->uhes);
 	xvm_free(bcd->bgrd); xvm_free(bcd->bhes);
-	free(bcd->actpos);
-	free(bcd);
+	xfree(bcd->actpos);
+	xfree(bcd);
 	for (uint64_t o = 0; o < O; o++)
-		free(idx_lst[o]);
-	free(idx_lst);
-	free(idx_cnt);
+		xfree(idx_lst[o]);
+	xfree(idx_lst);
+	xfree(idx_cnt);
 }
 

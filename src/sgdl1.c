@@ -208,13 +208,13 @@ void trn_sgdl1(mdl_t *mdl) {
 	grd_stfree(grd_st);
 	// Cleanup allocated memory before returning
 	for (uint32_t s = 0; s < S; s++) {
-		free(idx[s].uobs);
-		free(idx[s].bobs);
+		xfree(idx[s].uobs);
+		xfree(idx[s].bobs);
 	}
-	free(idx);
-	free(perm);
-	free(g);
-	free(q);
+	xfree(idx);
+	xfree(perm);
+	xfree(g);
+	xfree(q);
 }
 #undef applypenalty
 

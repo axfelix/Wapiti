@@ -105,16 +105,16 @@ void qrk_free(qrk_t *qrk) {
 		while (cnt != 0) {
 			node_t *nd = stk[--cnt];
 			if (qrk_isleaf(nd)) {
-				free(qrk_nd2lf(nd));
+				xfree(qrk_nd2lf(nd));
 				continue;
 			}
 			stk[cnt++] = nd->child[0];
 			stk[cnt++] = nd->child[1];
-			free(nd);
+			xfree(nd);
 		}
 	}
-	free(qrk->leafs);
-	free(qrk);
+	xfree(qrk->leafs);
+	xfree(qrk);
 }
 
 /* qrk_insert:
@@ -250,7 +250,7 @@ void qrk_load(qrk_t *qrk, iol_t *iol) {
 	for (uint64_t n = 0; n < cnt; ++n) {
                 char *str = ns_readstr(iol);
 		qrk_str2id(qrk, str);
-		free(str);
+		xfree(str);
 	}
 }
 

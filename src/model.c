@@ -85,9 +85,9 @@ mdl_t *mdl_new(rdr_t *rdr) {
  *   loaded in the model.
  */
 void mdl_free(mdl_t *mdl) {
-	free(mdl->kind);
-	free(mdl->uoff);
-	free(mdl->boff);
+	xfree(mdl->kind);
+	xfree(mdl->uoff);
+	xfree(mdl->boff);
 	if (mdl->theta != NULL)
 		xvm_free(mdl->theta);
 	if (mdl->train != NULL)
@@ -97,8 +97,8 @@ void mdl_free(mdl_t *mdl) {
 	if (mdl->reader != NULL)
 		rdr_free(mdl->reader);
 	if (mdl->werr != NULL)
-		free(mdl->werr);
-	free(mdl);
+		xfree(mdl->werr);
+	xfree(mdl);
 }
 
 /* mdl_sync:
@@ -139,9 +139,9 @@ void mdl_sync(mdl_t *mdl) {
 	uint64_t oldO = mdl->nobs;
 	if (mdl->nlbl != Y && mdl->nlbl != 0) {
 		warning("labels count changed, discarding the model");
-		free(mdl->kind);  mdl->kind  = NULL;
-		free(mdl->uoff);  mdl->uoff  = NULL;
-		free(mdl->boff);  mdl->boff  = NULL;
+		xfree(mdl->kind);  mdl->kind  = NULL;
+		xfree(mdl->uoff);  mdl->uoff  = NULL;
+		xfree(mdl->boff);  mdl->boff  = NULL;
 		if (mdl->theta != NULL) {
 			xvm_free(mdl->theta);
 			mdl->theta = NULL;
@@ -232,7 +232,7 @@ void mdl_compact(mdl_t *mdl) {
 	uint64_t *old_uoff  = mdl->uoff;  mdl->uoff  = NULL;
 	uint64_t *old_boff  = mdl->boff;  mdl->boff  = NULL;
 	double   *old_theta = mdl->theta; mdl->theta = NULL;
-	free(mdl->kind);
+	xfree(mdl->kind);
 	mdl->kind = NULL;
 	mdl->nlbl = mdl->nobs = mdl->nftr = 0;
 	mdl_sync(mdl);
@@ -255,10 +255,10 @@ void mdl_compact(mdl_t *mdl) {
 		}
 	}
 	// And cleanup
-	free(trans);
+	xfree(trans);
 	qrk_free(old_obs);
-	free(old_uoff);
-	free(old_boff);
+	xfree(old_uoff);
+	xfree(old_boff);
 	xvm_free(old_theta);
 }
 

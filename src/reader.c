@@ -86,11 +86,11 @@ rdr_t *rdr_new(iol_t *iol, bool autouni) {
 void rdr_free(rdr_t *rdr) {
 	for (uint32_t i = 0; i < rdr->npats; i++)
 		pat_free(rdr->pats[i]);
-	free(rdr->pats);
+	xfree(rdr->pats);
 	qrk_free(rdr->lbl);
 	qrk_free(rdr->obs);
         iol_free(rdr->iol);
-	free(rdr);
+	xfree(rdr);
 }
 
 /* rdr_freeraw:
@@ -98,16 +98,16 @@ void rdr_free(rdr_t *rdr) {
  */
 void rdr_freeraw(raw_t *raw) {
 	for (uint32_t t = 0; t < raw->len; t++)
-		free(raw->lines[t]);
-	free(raw);
+		xfree(raw->lines[t]);
+	xfree(raw);
 }
 
 /* rdr_freeseq:
  *   Free all memory used by a seq_t object.
  */
 void rdr_freeseq(seq_t *seq) {
-	free(seq->raw);
-	free(seq);
+	xfree(seq->raw);
+	xfree(seq);
 }
 
 /* rdr_freedat:
@@ -116,8 +116,8 @@ void rdr_freeseq(seq_t *seq) {
 void rdr_freedat(dat_t *dat) {
 	for (uint32_t i = 0; i < dat->nseq; i++)
 		rdr_freeseq(dat->seq[i]);
-	free(dat->seq);
-	free(dat);
+	xfree(dat->seq);
+	xfree(dat);
 }
 
 /* rdr_loadpat:
@@ -134,7 +134,7 @@ void rdr_loadpat(rdr_t *rdr, iol_t *iol) {
 		while (end != 0 && isspace(line[end - 1] & 0xff))
 			end--;
 		if (end == 0) {
-			free(line);
+			xfree(line);
 			continue;
 		}
 		line[end] = '\0';
@@ -176,7 +176,7 @@ raw_t *rdr_readraw(iol_t *iol, bool autouni) {
 		while (len != 0 && isspace(line[len - 1] & 0xff))
 			len--;
 		if (len == 0) {
-			free(line);
+			xfree(line);
 			// Special case when no line was already read, we try
 			// again. This allow multiple blank lines between
 			// sequences.
@@ -200,7 +200,7 @@ raw_t *rdr_readraw(iol_t *iol, bool autouni) {
 	// to signal the end of file to the caller. Else, we adjust the object
 	// size and return it.
 	if (cnt == 0) {
-		free(raw);
+		xfree(raw);
 		return NULL;
 	}
 	raw = xrealloc(raw, sizeof(raw_t) + sizeof(char *) * cnt);
@@ -315,7 +315,7 @@ static seq_t *rdr_pattok2seq(rdr_t *rdr, const tok_t *tok) {
 			char *obs = pat_exec(rdr->pats[x], tok, t);
 			uint64_t id = rdr_mapobs(rdr, obs);
 			if (id == none) {
-				free(obs);
+				xfree(obs);
 				continue;
 			}
 			// If the observation is ok, add it to the lists
@@ -329,7 +329,7 @@ static seq_t *rdr_pattok2seq(rdr_t *rdr, const tok_t *tok) {
 				pos->uobs[pos->ucnt++] = id;
 			if (kind & 2)
 				pos->bobs[pos->bcnt++] = id;
-			free(obs);
+			xfree(obs);
 		}
 	}
 	// And finally, if the user specified it, populate the labels
@@ -402,13 +402,13 @@ seq_t *rdr_raw2seq(rdr_t *rdr, const raw_t *raw, bool lbl) {
 	for (uint32_t t = 0; t < T; t++) {
 		if (tok->cnts[t] == 0)
 			continue;
-		free(tok->toks[t][0]);
-		free(tok->toks[t]);
+		xfree(tok->toks[t][0]);
+		xfree(tok->toks[t]);
 	}
-	free(tok->cnts);
+	xfree(tok->cnts);
 	if (lbl == true)
-		free(tok->lbl);
-	free(tok);
+		xfree(tok->lbl);
+	xfree(tok);
 	return seq;
 }
 
@@ -460,8 +460,8 @@ dat_t *rdr_readdat(rdr_t *rdr, iol_t *iol, bool lbl) {
 	}
 	// If no sequence readed, cleanup and repport
 	if (dat->nseq == 0) {
-		free(dat->seq);
-		free(dat);
+		xfree(dat->seq);
+		xfree(dat);
 		return NULL;
 	}
 	// Adjust the dataset size and return
