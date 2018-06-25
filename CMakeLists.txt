@@ -1,7 +1,7 @@
 # cmake -G "Visual Studio 15 2017 Win64" -T LLVM-vs2014 .
 
 cmake_minimum_required(VERSION 3.9)
-project( wapiti )
+project( wapiti LANGUAGES CXX CUDA)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_CRT_SECURE_NO_WARNINGS")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Ot")

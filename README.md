@@ -5,8 +5,6 @@
 This is a fork of [Wapiti][wapiti].  Please see the [original
 site][wapiti] for the definitive source.
 
-## My Fork
-
 This version has been modified to support:
 
  * Windows (x64).
@@ -21,6 +19,10 @@ provide the following features.
    build the library more easily in the environment of your choice.
  * Remove most uses of VLA (i.e. `main(int argc, char*[argc]
    argv)`. Instead, `main(int argc, char** argv)` is used).
+
+When building with CMake on Windows, make sure to specify both the host and the CMake generator platform are 64-bit like so or the CUDA paths will break:
+
+`cmake -DCMAKE_GENERATOR_PLATFORM=x64 -T host=x64 -DCMAKE_CUDA_FLAGS="-arch=sm_61" .`
 
 ## Branches
 
