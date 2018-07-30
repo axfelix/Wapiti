@@ -30,6 +30,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <cuda_runtime.h>
 
 #include "wapiti.h"
 #include "tools.h"
@@ -276,7 +277,9 @@ void xvm_axpy(double r[], double a, const double x[], const double y[],
  *   BSD licence like the remaining of Wapiti.
  */
 void xvm_expma(double r[], const double x[], double a, uint64_t N) {
-#if defined(__SSE2__) && !defined(XVM_ANSI)
+int deviceCount = 0;
+cudaGetDeviceCount(&deviceCount);
+#if defined(__SSE2__) && !defined(XVM_ANSI) && (deviceCount == 0)
   #define xvm_vconst(v) (_mm_castsi128_pd(_mm_set1_epi64x((v))))
 	assert(r != NULL && ((uintptr_t)r % 16) == 0);
 	assert(x != NULL && ((uintptr_t)x % 16) == 0);
@@ -366,6 +369,20 @@ void xvm_expma(double r[], const double x[], double a, uint64_t N) {
 		_mm_store_pd(r + n,     v1);
 		_mm_store_pd(r + n + 2, v2);
 	}
+#elif (deviceCount > 0)
+	cudaMalloc( (void **) &d_N, 8 );
+	cudaMalloc( (void **) &d_n, 8 );
+	cudaMalloc( (void **) &d_a, 8 );
+	cudaMalloc( (void **) &d_r, 8 );
+	cudaMemcpy( d_N, N, 8, cudaMemcpyHostToDevice );
+	cudaMemcpy( d_a, a, 8, cudaMemcpyHostToDevice );
+	for (d_n = 0; d_n < d_N; d_n++)
+		d_r[n] = __expf(x[d_n]) - d_a;
+	cudaMemcpy( r, d_r, 8, cudaMemcpyDeviceToHost );
+	cudaFree( d_N );
+	cudaFree( d_n );
+	cudaFree( d_a );
+	cudaFree( d_r );
 #else
 	for (uint64_t n = 0; n < N; n++)
 		r[n] = exp(x[n]) - a;

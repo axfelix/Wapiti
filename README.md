@@ -22,7 +22,7 @@ provide the following features.
 
 When building with CMake on Windows, make sure to specify both the host and the CMake generator platform are 64-bit like so or the CUDA paths will break:
 
-`cmake -DCMAKE_GENERATOR_PLATFORM=x64 -T host=x64 -DCMAKE_CUDA_FLAGS="-arch=sm_61" .`
+`cmake -DCMAKE_GENERATOR_PLATFORM=x64 -T host=x64 .`
 
 ## Branches
 
